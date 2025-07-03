@@ -1,0 +1,1774 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kansas DMV Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+
+        .header {
+            background: #4f46e5;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0 10px 0;
+            overflow: hidden;
+        }
+
+
+        .progress-bar {
+            background: #10b981;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+
+        .progress-text {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+
+        .content {
+            padding: 40px;
+        }
+
+
+        .question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+
+        .option {
+            padding: 18px 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            background: white;
+        }
+
+
+        .option:hover {
+            border-color: #4f46e5;
+            background: #f8fafc;
+        }
+
+
+        .option.selected {
+            border-color: #4f46e5;
+            background: #eef2ff;
+        }
+
+
+        .option.correct {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #065f46;
+        }
+
+
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+
+        .button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            float: right;
+        }
+
+
+        .button:hover {
+            background: #4338ca;
+        }
+
+
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+
+        .button.restart {
+            background: #10b981;
+            float: none;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+
+        .button.restart:hover {
+            background: #059669;
+        }
+
+
+        .feedback {
+            margin-top: 20px;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+
+        .results {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+
+        .results-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+
+        .results-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+
+        .results-score {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+
+        .results-status {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #6b7280;
+        }
+
+
+        .category-breakdown {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+
+        .category-breakdown h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .question {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Kansas DMV Practice Test</h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">Question 1 of 25</div>
+        </div>
+        <div class="content">
+            <div id="quiz-content">
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <div class="clearfix">
+                    <button class="button" id="submitBtn" onclick="checkAnswer()">Submit Answer</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+            <div id="results" style="display: none;" class="results">
+                <div class="results-icon" id="resultsIcon"></div>
+                <div class="results-title" id="resultsTitle"></div>
+                <div class="results-score" id="resultsScore"></div>
+                <div class="results-status" id="resultsStatus"></div>
+                <div class="category-breakdown">
+                    <h3>Performance by Category:</h3>
+                    <div id="categoryBreakdown"></div>
+                </div>
+                <button class="button restart" onclick="restartQuiz()">Take Another Test</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const questionBank = [
+            // Road Signs (20 questions)
+            {
+                question: "What does a yellow diamond-shaped sign indicate?",
+                options: ["Warning of hazards ahead", "Stop required", "Service information", "Speed limit"],
+                answer: 0,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a red octagon-shaped sign mean?",
+                options: ["Yield", "Stop", "Warning", "School zone"],
+                answer: 1,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a green rectangular sign indicate?",
+                options: ["Warning", "Stop ahead", "Direction or guidance", "Construction"],
+                answer: 2,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a blue sign with a white symbol indicate?",
+                options: ["Construction", "Warning", "Driver services", "Speed limit"],
+                answer: 2,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a brown sign with a white symbol indicate?",
+                options: ["Construction zone", "Recreation or cultural interest", "School zone", "Hospital"],
+                answer: 1,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a red circle with a diagonal slash mean?",
+                options: ["Warning", "Prohibition or not allowed", "Construction", "Speed limit"],
+                answer: 1,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a yellow triangle with a black border mean?",
+                options: ["Yield", "Warning of no passing zone", "School crossing", "Railroad crossing"],
+                answer: 0,
+                category: "Road Signs"
+            },
+            {
+                question: "What shape and color is a stop sign?",
+                options: ["Red octagon", "Yellow diamond", "White triangle with red border", "Green rectangle"],
+                answer: 0,
+                category: "Road Signs"
+            },
+            {
+                question: "What shape and color is a yield sign?",
+                options: ["Red octagon", "Yellow diamond", "White triangle with red border", "Green rectangle"],
+                answer: 2,
+                category: "Road Signs"
+            },
+            {
+                question: "What shape and color is a school zone sign?",
+                options: ["Yellow pentagon", "Green rectangle", "Blue circle", "White square"],
+                answer: 0,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a black car and curvy arrow indicate?",
+                options: ["Slippery when wet", "Road curves ahead", "Winding road ahead", "Speed bump ahead"],
+                answer: 2,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a picture of a deer mean?",
+                options: ["Animal crossing ahead", "Zoo nearby", "Wildlife preserve", "Hunting area"],
+                answer: 0,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a picture of a train mean?",
+                options: ["Train station nearby", "Railroad crossing ahead", "Tourist attraction", "Construction zone"],
+                answer: 1,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a picture of a person walking mean?",
+                options: ["Pedestrian crossing", "School zone", "No pedestrians allowed", "Hiking trail"],
+                answer: 0,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a picture of a bicycle mean?",
+                options: ["Bicycle lane ahead", "No bicycles allowed", "Bicycle crossing", "Bicycle rental"],
+                answer: 2,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with an arrow pointing left and an arrow pointing right mean?",
+                options: ["One way street", "Two-way traffic ahead", "Divided highway begins", "No turns"],
+                answer: 1,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a red circle and a white line across it mean?",
+                options: ["Stop", "Yield", "Do Not Enter", "No U-turn"],
+                answer: 2,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a picture of a truck going downhill mean?",
+                options: ["Steep hill ahead", "Truck parking", "Truck route", "No trucks allowed"],
+                answer: 0,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a picture of a slippery road mean?",
+                options: ["Slippery when wet", "Road closed", "Pavement ends", "Rough road"],
+                answer: 0,
+                category: "Road Signs"
+            },
+            {
+                question: "What does a sign with a picture of a flagger person mean?",
+                options: ["Construction zone ahead", "Flagger ahead", "Road work ahead", "Stop ahead"],
+                answer: 1,
+                category: "Road Signs"
+            },
+
+
+            // Traffic Laws (40 Questions)
+            {
+                question: "What is the speed limit in a residential area, unless otherwise posted?",
+                options: ["20 mph", "25 mph", "30 mph", "35 mph"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What is the speed limit on most state highways, unless otherwise posted?",
+                options: ["55 mph", "60 mph", "65 mph", "70 mph"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What is the maximum speed limit on a divided highway, unless otherwise posted?",
+                options: ["65 mph", "70 mph", "75 mph", "80 mph"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What is the speed limit in a school zone when children are present?",
+                options: ["15 mph", "20 mph", "25 mph", "30 mph"],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "When are you required to yield to pedestrians?",
+                options: [
+                    "Only at marked crosswalks",
+                    "Only at intersections",
+                    "At all crosswalks, whether marked or unmarked, and intersections",
+                    "Only when a pedestrian signal is present"
+                ],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What should you do when approaching a flashing yellow light?",
+                options: ["Stop completely", "Proceed with caution", "Speed up", "Wait for green"],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What should you do when approaching a flashing red light?",
+                options: ["Proceed with caution", "Stop and proceed when safe", "Speed up", "Wait for green"],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What is the 'Move Over Law'?",
+                options: [
+                    "Law requiring slow drivers to move to the right lane",
+                    "Law requiring drivers to change lanes when passing",
+                    "Law requiring drivers to move over or slow down for emergency vehicles stopped on the side of the road",
+                    "Law requiring drivers to move through intersections quickly"
+                ],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What should you do if you are being tailgated?",
+                options: [
+                    "Brake suddenly",
+                    "Speed up to create distance",
+                    "Maintain a steady speed and allow the tailgater to pass if it is safe to do so; if there is no safe passing lane, slow down gradually to encourage the tailgater to pass",
+                    "Turn on your hazard lights"
+                ],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What is the legal blood alcohol concentration (BAC) limit for drivers over 21 in Kansas?",
+                options: ["0.10%", "0.08%", "0.05%", "0.02%"],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What is the legal BAC limit for drivers under 21 in Kansas?",
+                options: ["0.08%", "0.02%", "0.05%", "0.00%"],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for driving under the influence of alcohol or drugs?",
+                options: [
+                    "Fines and community service",
+                    "Jail time and license suspension",
+                    "Fines, jail time, community service, license suspension, and mandatory ignition interlock device",
+                    "Mandatory driver education course"
+                ],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What is the implied consent law?",
+                options: [
+                    "You consent to a breathalyzer test if pulled over",
+                    "You consent to a chemical test (breath, blood, or urine) if an officer suspects you of driving under the influence",
+                    "You consent to a search of your vehicle if pulled over",
+                    "You consent to a field sobriety test"
+                ],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "When must you use your headlights?",
+                options: [
+                    "From sunset to sunrise only",
+                    "When it's raining only",
+                    "When visibility is reduced (e.g., at night, in rain, fog, or snow)",
+                    "Only when other cars have their lights on"
+                ],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the rules regarding the use of cell phones while driving?",
+                options: [
+                    "Talking on a cell phone is illegal",
+                    "It is illegal to write, send, or read text messages while driving; talking on a cell phone is not illegal but is highly discouraged",
+                    "Hands-free devices are required for all cell phone use",
+                    "Cell phone use is prohibited for all drivers"
+                ],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the child restraint requirements in Kansas?",
+                options: [
+                    "Children under 8 must be in a car seat or booster seat",
+                    "Children under 4 must be in a car seat; children 4-8 must be in a car seat or booster seat unless they are taller than 4'9\" or weigh more than 80 lbs; children 8 and older must use a seatbelt",
+                    "All children under 12 must be in the back seat",
+                    "Children under 1 year old must be in a rear-facing car seat"
+                ],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "When can you make a U-turn?",
+                options: [
+                    "Anywhere on the road",
+                    "Only at intersections",
+                    "Only when it is safe and legal, with no signs prohibiting it, and when you can be seen by other drivers for at least 500 feet",
+                    "Never"
+                ],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "When can you pass another vehicle on the right?",
+                options: [
+                    "Only on multi-lane highways with two or more lanes moving in the same direction; do not drive on the shoulder to pass",
+                    "Anytime there is a broken white line",
+                    "When the vehicle ahead is making a left turn",
+                    "Never"
+                ],
+                answer: 0,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What should you do if you miss your exit on a highway?",
+                options: [
+                    "Back up to the exit",
+                    "Make a U-turn at the next median",
+                    "Continue to the next exit and turn around; do not back up on the highway",
+                    "Pull over to the shoulder and wait for a break in traffic"
+                ],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the rules for parking near a fire hydrant?",
+                options: [
+                    "Parking is prohibited within 10 feet of a fire hydrant",
+                    "Parking is prohibited within 15 feet of a fire hydrant",
+                    "Parking is prohibited within 20 feet of a fire hydrant",
+                    "You can park next to a fire hydrant if you are actively loading/unloading"
+                ],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the rules for parking on a hill?",
+                options: [
+                    "Turn your wheels toward the curb when facing downhill and away from the curb when facing uphill",
+                    "Always turn your wheels away from the curb",
+                    "Always turn your wheels toward the curb",
+                    "Keep your wheels straight"
+                ],
+                answer: 0,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the rules for parallel parking?",
+                options: [
+                    "Park within 6 inches of the curb",
+                    "Park within 12 inches of the curb, without crossing the boundaries of the parking space",
+                    "Park within 18 inches of the curb",
+                    "Park as close to the curb as possible"
+                ],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the rules for parking in a handicapped parking space?",
+                options: [
+                    "You can park there if you are just running in for a minute",
+                    "You must have a handicapped license plate, tag, or sticker to park in a handicapped parking space",
+                    "You can park there if no other spaces are available",
+                    "Only vehicles with a wheelchair ramp can park there"
+                ],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What do the different colors of curb markings indicate?",
+                options: [
+                    "White: short stops only; Yellow: loading zone or other restriction; Blue: handicapped restriction; Red: fire zone restriction",
+                    "Red: no parking; Yellow: short-term parking; Green: long-term parking; Blue: handicapped parking",
+                    "White: loading zone; Yellow: no parking; Blue: fire zone; Red: handicapped parking",
+                    "All curb markings mean no parking"
+                ],
+                answer: 0,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What should you do if you are involved in a traffic accident?",
+                options: [
+                    "Leave the scene immediately",
+                    "Stop, check for injuries, exchange information with other drivers, and report the accident to the police",
+                    "Only report if there is significant damage",
+                    "Wait for the police to arrive before doing anything"
+                ],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for failing to stop and render aid after an accident?",
+                options: ["Fine", "License suspension", "License revocation", "Community service"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for reckless driving?",
+                options: ["Fine", "License suspension", "License revocation", "Points on your license"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for attempting to elude a police officer?",
+                options: ["Fine", "License suspension", "License revocation", "Jail time"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for vehicular homicide?",
+                options: ["Fine", "License suspension", "License revocation", "Imprisonment"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for aggravated vehicular homicide?",
+                options: ["Fine", "License suspension", "License revocation", "Longer imprisonment"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for vehicular battery?",
+                options: ["Fine", "License suspension", "License revocation", "Jail time"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for refusing to submit to a chemical test?",
+                options: [
+                    "Fine and community service",
+                    "License suspension (1 year for first refusal, 2 years for second, 3 years for third, 10 years for fourth)",
+                    "Mandatory driver education",
+                    "Jail time"
+                ],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for failing to appear in court or respond to a traffic citation?",
+                options: ["Fine", "License suspension (indefinite)", "Community service", "Jail time"],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for failing to maintain continuous liability insurance?",
+                options: ["Fine", "License suspension (indefinite)", "Points on your license", "Vehicle impoundment"],
+                answer: 1,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for transporting an open container of alcohol?",
+                options: ["Fine", "License suspension", "License suspension", "Community service"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the penalties for failing to report a traffic accident?",
+                options: ["Fine", "License suspension", "License suspension", "Jail time"],
+                answer: 2,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the requirements for obtaining a Kansas driver's license?",
+                options: [
+                    "Be at least 16 years old, submit proof of name, age, and address, complete driver's education if under 18, pass required exams, and meet other requirements",
+                    "Be at least 15 years old and pass a written test",
+                    "Be at least 16 years old and pass a driving test",
+                    "Be at least 17 years old and have a learner's permit for 6 months"
+                ],
+                answer: 0,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What is the process for renewing your driver's license in Kansas?",
+                options: [
+                    "Renew at least 30 days before expiration, pass a vision test, and possibly a written or driving test",
+                    "Renew online every 4 years",
+                    "Visit the DMV in person every 6 years",
+                    "Pass a written and driving test every renewal"
+                ],
+                answer: 0,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the restrictions for drivers with a learner's permit?",
+                options: [
+                    "Must drive with a licensed driver who is at least 21 years old, restrictions on nighttime driving, and other limitations",
+                    "Cannot drive with any passengers",
+                    "Can only drive during daylight hours",
+                    "Must complete 50 hours of supervised driving"
+                ],
+                answer: 0,
+                category: "Traffic Laws"
+            },
+            {
+                question: "What are the requirements for motorcycle endorsements in Kansas?",
+                options: [
+                    "Pass a separate knowledge and skills test in addition to the regular driver's license requirements",
+                    "Complete a motorcycle safety course",
+                    "Have a valid driver's license for at least one year",
+                    "Be at least 18 years old"
+                ],
+                answer: 0,
+                category: "Traffic Laws"
+            },
+
+
+            // Safe Driving Practices (50 Questions)
+            {
+                question: "What should you do if your vehicle starts to skid?",
+                options: [
+                    "Brake hard immediately",
+                    "Turn the steering wheel in the opposite direction",
+                    "Steer in the direction of the skid, avoid braking, and try to regain control",
+                    "Accelerate quickly"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "How can you maintain a safe following distance?",
+                options: [
+                    "Follow at least 1 second behind",
+                    "Follow at least 2 seconds behind",
+                    "Use the \"two-second rule\" (or \"three-second rule\" in Kansas) to judge the following distance",
+                    "Follow at least 4 seconds behind"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "What are some common causes of distracted driving?",
+                options: [
+                    "Adjusting the radio",
+                    "Eating and drinking",
+                    "Cell phone use, eating, drinking, adjusting the radio, and other activities that take your attention away from driving",
+                    "Talking to passengers"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "How can you avoid distractions while driving?",
+                options: [
+                    "Put away your cell phone, avoid eating or drinking while driving, plan your route in advance, and stay focused on the road",
+                    "Eat and drink quickly",
+                    "Only use your phone for emergencies",
+                    "Let passengers handle distractions"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What are some things you can do to avoid becoming an aggressive driver?",
+                options: [
+                    "Relax, concentrate on driving, obey the speed limit, be realistic about travel time, and be courteous and forgiving to other drivers",
+                    "Honk at slow drivers",
+                    "Tailgate others to make them speed up",
+                    "Engage in road rage"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "How does alcohol affect your ability to drive?",
+                options: [
+                    "Improves focus",
+                    "Impairs judgment, vision, reaction time, and coordination",
+                    "Makes you more alert",
+                    "Has no effect if consumed in moderation"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What are some of the effects of fatigue on driving?",
+                options: [
+                    "Increased alertness",
+                    "Improved reaction time",
+                    "Impairs judgment, vision, reaction time, and can cause drowsiness and irritability",
+                    "Better concentration"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "How can you prevent fatigue while driving?",
+                options: [
+                    "Get enough sleep, schedule breaks during long trips, avoid alcohol and sedating medications, and be aware of the warning signs of fatigue",
+                    "Drink energy drinks",
+                    "Turn up the radio",
+                    "Open the windows"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you feel tired while driving?",
+                options: [
+                    "Turn up the radio",
+                    "Open the windows",
+                    "Pull over in a safe location and take a break, nap, or consume caffeine",
+                    "Drink coffee"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "How should you drive in rain or snow?",
+                options: [
+                    "Maintain normal speed",
+                    "Reduce speed, increase following distance, use low beams, and be cautious of slippery conditions",
+                    "Use high beams",
+                    "Brake hard to test traction"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if your tires hydroplane?",
+                options: [
+                    "Brake hard immediately",
+                    "Turn the wheel quickly",
+                    "Ease off the accelerator, avoid braking, and steer straight ahead until your tires regain traction",
+                    "Accelerate to power through"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "How should you drive in fog?",
+                options: [
+                    "Use high beam headlights",
+                    "Use low beam headlights and fog lights, and increase following distance",
+                    "Use parking lights only",
+                    "Turn off all lights"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "How should you drive at night?",
+                options: [
+                    "Use high beams when safe, dim them for oncoming traffic, and be aware of limited visibility",
+                    "Drive with parking lights only",
+                    "Drive faster to get home sooner",
+                    "Follow other cars closely"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you encounter a dust storm while driving?",
+                options: [
+                    "Speed up to get through it quickly",
+                    "Turn on your high beams",
+                    "Slow down, use low beams, and increase following distance",
+                    "Pull over to the side of the road with your lights off"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "How should you drive in windy conditions?",
+                options: [
+                    "Speed up to maintain control",
+                    "Reduce speed, maintain a firm grip on the steering wheel, and be aware of the possibility of strong gusts",
+                    "Open windows to reduce wind resistance",
+                    "Drive in the middle of the lane"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you encounter a flooded roadway?",
+                options: [
+                    "Drive through slowly",
+                    "Do not drive through flooded areas; turn around and find another route",
+                    "Speed up to get through quickly",
+                    "Wait for the water to recede"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "How should you drive in work zones?",
+                options: [
+                    "Speed up to get through quickly",
+                    "Slow down, obey signs and flaggers, and be prepared for changing traffic patterns",
+                    "Pass slower vehicles",
+                    "Use the shoulder to pass traffic"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you encounter an animal on the road?",
+                options: [
+                    "Honk loudly to scare it away",
+                    "Slow down, avoid swerving, and try to maintain control of your vehicle",
+                    "Speed up to avoid hitting it",
+                    "Swerve to avoid it at all costs"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "How can you avoid collisions with animals?",
+                options: [
+                    "Be cautious at dawn and dusk, in areas with deer crossing signs, and scan the sides of the road for animals",
+                    "Drive with high beams on at all times",
+                    "Only drive during the day",
+                    "Drive in the center of the lane"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you are involved in a collision with an animal?",
+                options: [
+                    "Leave the scene immediately",
+                    "Report the crash to the police if it involves a large animal; try to notify the owner if it is a domestic pet",
+                    "Only report if there is damage to your vehicle",
+                    "Try to move the animal off the road yourself"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What are some important things to check on your vehicle regularly?",
+                options: [
+                    "Tire pressure and oil level",
+                    "Check tire pressure, lights, fluid levels, brakes, and other essential components regularly",
+                    "Wiper fluid and air freshener",
+                    "Radio and air conditioning"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if your brakes fail?",
+                options: [
+                    "Pump the brake pedal, use the parking brake, and look for a safe place to stop",
+                    "Shift to neutral and coast",
+                    "Turn off the engine",
+                    "Open the car door to create drag"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you have a flat tire?",
+                options: [
+                    "Continue driving to the nearest repair shop",
+                    "Grip the steering wheel firmly, slow down gradually, and pull off the road in a safe place",
+                    "Brake hard to stop quickly",
+                    "Speed up to maintain control"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if your engine stalls while driving?",
+                options: [
+                    "Brake hard and stop immediately",
+                    "Grip the steering wheel, shift to neutral, and pull off the road; try to restart the engine, and if unsuccessful, call for help",
+                    "Turn off all electronics",
+                    "Try to restart the engine while still in drive"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if your accelerator fails?",
+                options: [
+                    "Brake hard immediately",
+                    "Shift to neutral, steer smoothly, brake gently, and pull off the road",
+                    "Turn off the engine while in gear",
+                    "Pump the accelerator pedal repeatedly"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "How should you handle a four-way stop?",
+                options: [
+                    "The first vehicle to arrive has the right-of-way; if two vehicles arrive at the same time, the vehicle on the right has the right-of-way",
+                    "The largest vehicle goes first",
+                    "Always yield to traffic on your left",
+                    "Always stop, then proceed when clear regardless of other vehicles"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What are the rules regarding passing on the right?",
+                options: [
+                    "Only on multi-lane highways with two or more lanes moving in the same direction; do not pass on the shoulder",
+                    "Only when the vehicle in front is turning left",
+                    "Never pass on the right",
+                    "Only on two-lane roads"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "When are you required to use turn signals?",
+                options: [
+                    "Only when turning at an intersection",
+                    "When turning, changing lanes, or moving from a stopped position",
+                    "Only when other vehicles are present",
+                    "Only at night"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What are the restrictions for drivers with a learner's permit in Kansas?",
+                options: [
+                    "Must drive with a licensed driver who is at least 21 years old, restrictions on nighttime driving, and other limitations",
+                    "Cannot drive on highways",
+                    "Cannot drive with any passengers under 18",
+                    "Must have a parent or guardian in the car at all times"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What is the purpose of a roundabout?",
+                options: [
+                    "To increase traffic congestion",
+                    "To facilitate traffic flow and reduce the need for stop signs or traffic signals",
+                    "To allow for U-turns only",
+                    "To slow down traffic significantly"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "How should you drive in a roundabout?",
+                options: [
+                    "Always yield to traffic already in the roundabout, enter when safe, and exit at your desired street",
+                    "Stop before entering and wait for a clear path",
+                    "Always yield to traffic entering from your left",
+                    "Speed up to merge into traffic"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you encounter a bicyclist on the road?",
+                options: [
+                    "Honk to alert them of your presence",
+                    "Pass them as closely as possible",
+                    "Give them at least 3 feet of space when passing and be prepared for sudden movements",
+                    "Force them to the side of the road"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you encounter a motorcyclist on the road?",
+                options: [
+                    "Share the lane with them",
+                    "Give them the full lane and be aware of their smaller size and potential for sudden movements",
+                    "Follow closely behind them",
+                    "Assume they will always follow traffic laws perfectly"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you encounter an emergency vehicle on the road?",
+                options: [
+                    "Speed up to get out of their way",
+                    "Pull over to the right edge of the road and stop, if safe to do so, until the emergency vehicle has passed",
+                    "Continue driving at your current speed",
+                    "Follow closely behind them"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you are pulled over by a police officer?",
+                options: [
+                    "Keep driving until you find a safe, well-lit area",
+                    "Pull over safely, turn off your engine, keep your hands visible, and follow the officer's instructions",
+                    "Immediately exit your vehicle",
+                    "Argue with the officer about the reason for the stop"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you see a pedestrian crossing the street?",
+                options: ["Honk to warn them", "Yield to the pedestrian", "Speed up to pass before they cross", "Assume they will wait for you"],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "How should you handle a situation where a car is tailgating you?",
+                options: [
+                    "Brake suddenly to deter them",
+                    "Maintain a steady speed and allow the tailgater to pass if it is safe to do so; if there is no safe passing lane, slow down gradually to encourage the tailgater to pass",
+                    "Speed up to create distance",
+                    "Turn on your hazard lights and slow down"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+            {
+                question: "What are some things you can do to conserve fuel while driving?",
+                options: [
+                    "Drive aggressively",
+                    "Speed up and slow down frequently",
+                    "Maintain a steady speed, avoid rapid acceleration and braking, and keep your tires properly inflated",
+                    "Use your air conditioning at all times"
+                ],
+                answer: 2,
+                category: "Safe Driving"
+            },
+            {
+                question: "How can you prepare your vehicle for winter driving?",
+                options: [
+                    "Check antifreeze, tires, battery, wipers, and ensure your defroster works",
+                    "Only fill your gas tank halfway",
+                    "Drive with summer tires",
+                    "Avoid checking fluid levels"
+                ],
+                answer: 0,
+                category: "Safe Driving"
+            },
+            {
+                question: "What should you do if you become stranded in your vehicle during a winter storm?",
+                options: [
+                    "Leave your car and walk for help",
+                    "Stay with your vehicle, turn on your hazard lights, and run the engine periodically for heat",
+                    "Continuously run your engine to stay warm",
+                    "Try to push your car out of the snow"
+                ],
+                answer: 1,
+                category: "Safe Driving"
+            },
+
+
+            // Kansas-Specific Information (20 Questions)
+            {
+                question: "Where can you get a copy of the Kansas Driver's Handbook?",
+                options: [
+                    "Online from the Kansas Department of Revenue website or at any Kansas driver's license office",
+                    "At any public library",
+                    "From your local police department",
+                    "Only at driving schools"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "Does Kansas have a graduated driver's licensing (GDL) system?",
+                options: ["No", "Yes", "Only for drivers under 16", "Only for drivers under 18"],
+                answer: 1,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the different levels or stages in the Kansas GDL system?",
+                options: [
+                    "Instruction Permit, Restricted Driver's License, Unrestricted Driver's License",
+                    "Learner's Permit, Intermediate License, Full License",
+                    "Provisional License, Standard License",
+                    "Junior License, Senior License"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the nighttime driving restrictions for drivers under 17 with a restricted license?",
+                options: [
+                    "Cannot drive between 9 PM and 5 AM",
+                    "Cannot drive between 12 AM and 5 AM",
+                    "Cannot drive between 11 PM and 5 AM unless driving to/from work or school activity",
+                    "No nighttime restrictions"
+                ],
+                answer: 2,
+                category: "Kansas Laws"
+            },
+            {
+                question: "Can drivers with a learner's permit use wireless communication devices while driving?",
+                options: ["Yes, for emergencies only", "No, it is prohibited", "Yes, with a hands-free device", "Only if a licensed driver is present"],
+                answer: 1,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the passenger limitations for drivers under 17 with a restricted license?",
+                options: [
+                    "No more than one non-family passenger under 21",
+                    "No more than three non-family passengers",
+                    "No non-family passengers for the first 6 months",
+                    "No passenger limitations"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the requirements for a 14- or 15-year-old to obtain a farm permit?",
+                options: [
+                    "Must live on a farm, complete driver's education, pass required exams, and only drive within a 20-mile radius of the farm",
+                    "Must be enrolled in an agricultural program",
+                    "Must have a parent or guardian's permission",
+                    "No specific requirements beyond age"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the driving restrictions for a 14- or 15-year-old with a farm permit?",
+                options: [
+                    "Can only drive within a 20-mile radius of the farm during daylight hours for farm-related work",
+                    "Can drive anywhere during daylight hours",
+                    "Can drive only on rural roads",
+                    "Can drive with a licensed adult"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the requirements for a 16-year-old to obtain a restricted license?",
+                options: [
+                    "Must have held an instruction permit for at least 6 months, completed driver's education, and passed a driving test",
+                    "Must be 16 years old and pass a written test",
+                    "Must complete 50 hours of supervised driving",
+                    "No specific requirements beyond age"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the driving restrictions for a 16-year-old with a restricted license?",
+                options: [
+                    "Nighttime driving restrictions and passenger limitations apply",
+                    "No driving between 9 PM and 5 AM",
+                    "Can only drive with family members",
+                    "No restrictions"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the requirements for a 17-year-old to obtain an unrestricted driver's license?",
+                options: [
+                    "Must have held a restricted license for at least 6 months and have no traffic infractions",
+                    "Must be 17 years old and pass a driving test",
+                    "Must complete an advanced driver education course",
+                    "No specific requirements beyond age"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What are the vision requirements for obtaining a driver's license in Kansas?",
+                options: [
+                    "20/40 or better in at least one eye",
+                    "20/60 or better in both eyes",
+                    "20/20 in both eyes",
+                    "20/30 or better in the dominant eye"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What should you do if you fail the vision test?",
+                options: [
+                    "You will be denied a license",
+                    "You may be required to wear corrective lenses or have a restricted license",
+                    "You can retake it immediately",
+                    "You must see an eye doctor and get a vision waiver"
+                ],
+                answer: 1,
+                category: "Kansas Laws"
+            },
+            {
+                question: "How many times can you retake the knowledge test before having to wait six months?",
+                options: ["Once", "Twice", "Three times", "Unlimited"],
+                answer: 2,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What is the minimum age to obtain a Class C or M instruction permit?",
+                options: ["14 years old", "15 years old", "16 years old", "17 years old"],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What is the minimum age to obtain a non-commercial Class A or B driver's license?",
+                options: ["16 years old", "17 years old", "18 years old", "21 years old"],
+                answer: 2,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What is the minimum age to obtain a commercial driver's license (CDL)?",
+                options: ["18 years old", "19 years old", "20 years old", "21 years old"],
+                answer: 3,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What type of driver's education courses are accepted in Kansas?",
+                options: [
+                    "Only in-person courses",
+                    "Courses approved by the Kansas Department of Revenue",
+                    "Any online course",
+                    "Courses offered by high schools only"
+                ],
+                answer: 1,
+                category: "Kansas Laws"
+            },
+            {
+                question: "Are online driver's education courses accepted in Kansas?",
+                options: ["No", "Yes, if approved by the Kansas Department of Revenue", "Only if combined with behind-the-wheel training", "Only for adults"],
+                answer: 1,
+                category: "Kansas Laws"
+            },
+            {
+                question: "What is the website for the Kansas Department of Revenue's Division of Vehicles?",
+                options: [
+                    "www.ksrevenue.gov/dmv.html",
+                    "www.kansas.gov/dmv",
+                    "www.kdor.ks.gov/apps/DLStatus/login.aspx",
+                    "www.kansasdriver.org"
+                ],
+                answer: 0,
+                category: "Kansas Laws"
+            },
+
+
+            // Scenarios (30 Questions)
+            {
+                question: "You are approaching a green light, but there is a pedestrian crossing the street. What should you do?",
+                options: [
+                    "Proceed through - you have the right of way",
+                    "Honk to warn the pedestrian",
+                    "Yield to the pedestrian",
+                    "Speed up to pass before they cross"
+                ],
+                answer: 2,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving on a two-lane road and want to pass a slower vehicle. Is it legal to cross a solid yellow line to pass if there is no oncoming traffic?",
+                options: [
+                    "Yes, if the road is clear",
+                    "No, a solid yellow line means no passing",
+                    "Only if you signal first",
+                    "Only if the slower vehicle is going significantly below the speed limit"
+                ],
+                answer: 1,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving at night and your headlights suddenly go out. What should you do?",
+                options: [
+                    "Turn on your high beams",
+                    "Turn on your hazard lights, slow down, and pull off the road as quickly and safely as possible",
+                    "Continue driving slowly to the nearest exit",
+                    "Flash your lights repeatedly"
+                ],
+                answer: 1,
+                category: "Scenarios"
+            },
+            {
+                question: "You are approaching a railroad crossing with flashing lights. What should you do?",
+                options: [
+                    "Speed up to cross before the train comes",
+                    "Stop if lights are flashing, even if you don't see a train",
+                    "Proceed if you don't see a train",
+                    "Stop only if you see a train"
+                ],
+                answer: 1,
+                category: "Scenarios"
+            },
+            {
+                question: "You are in an intersection waiting to make a left turn when the light turns red. What should you do?",
+                options: [
+                    "Back up and return to the starting position",
+                    "Complete your turn when safe",
+                    "Stay in the intersection and wait for the next green light",
+                    "Turn on your hazard lights and wait"
+                ],
+                answer: 1,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving on a highway and see a car on the shoulder with its hazard lights flashing. What should you do?",
+                options: [
+                    "Slow down and move over a lane if possible, or reduce speed if changing lanes is not safe",
+                    "Speed up to pass them quickly",
+                    "Ignore them and continue driving normally",
+                    "Pull over behind them to offer help"
+                ],
+                answer: 0,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving in fog and visibility is very limited. What should you do?",
+                options: [
+                    "Use high beams to see better",
+                    "Follow closely behind another vehicle",
+                    "Use low beams and reduce speed",
+                    "Drive on the shoulder"
+                ],
+                answer: 2,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving on a wet road and your car starts to hydroplane. What should you do?",
+                options: [
+                    "Brake hard immediately",
+                    "Turn the wheel quickly",
+                    "Ease off the gas and steer straight",
+                    "Accelerate to power through"
+                ],
+                answer: 2,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving on a highway and see a sign indicating a construction zone ahead. What should you do?",
+                options: [
+                    "Speed up to get through it quickly",
+                    "Slow down, obey all signs, and be prepared for workers and equipment",
+                    "Maintain your speed if no workers are present",
+                    "Change lanes away from the construction"
+                ],
+                answer: 1,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving at night and encounter a deer in the road. What should you do?",
+                options: [
+                    "Swerve sharply to avoid it",
+                    "Brake firmly and steer straight, if a collision is unavoidable, hit it rather than swerving into oncoming traffic or off the road",
+                    "Speed up and honk",
+                    "Turn off your headlights"
+                ],
+                answer: 1,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving on a gravel road and your car starts to skid. What should you do?",
+                options: [
+                    "Brake hard immediately",
+                    "Steer in the direction of the skid, ease off the accelerator, and avoid sudden braking",
+                    "Accelerate to regain traction",
+                    "Turn off traction control"
+                ],
+                answer: 1,
+                category: "Scenarios"
+            },
+            {
+                question: "You are driving on a highway and your brakes fail. What should you do?",
+                options: [
+                    "Pump the brake pedal, shift to a lower gear, use the parking brake gradually, and look for a safe place to stop",
+                    "Turn off the engine immediately",
+                    "Open the car doors for drag",
+                    "Steer into a ditch"
+                ],
+                answer: 0,
+                category: "Scenarios"
+            }
+        ];
+
+
+
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let isAnswered = false;
+        let categoryScores = {};
+
+
+
+
+        function initializeQuiz() {
+            // Shuffle and select 25 random questions
+            currentQuestions = [...questionBank]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 25);
+
+
+
+
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            isAnswered = false;
+            categoryScores = {};
+
+
+
+
+            document.getElementById('quiz-content').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+
+
+
+            loadQuestion();
+        }
+
+
+
+
+        function loadQuestion() {
+            if (currentQuestions.length === 0) {
+                // Handle case where question bank is empty or fails to load
+                document.getElementById('question').textContent = "Failed to load questions.";
+                return;
+            }
+            const question = currentQuestions[currentQuestionIndex];
+
+
+
+
+            document.getElementById('question').textContent = question.question;
+
+
+
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+
+
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectAnswer(index);
+                optionDiv.setAttribute('data-index', index);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+
+
+
+            updateProgress();
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('submitBtn').textContent = 'Submit Answer';
+            document.getElementById('submitBtn').onclick = checkAnswer;
+            selectedAnswer = null;
+            isAnswered = false;
+        }
+
+
+
+
+        function selectAnswer(index) {
+            if (isAnswered) return;
+
+
+
+
+            selectedAnswer = index;
+
+
+
+
+            // Remove previous selections
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+
+
+
+            // Add selection to clicked option
+            document.querySelector(`[data-index="${index}"]`).classList.add('selected');
+
+
+
+
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+
+
+
+        function checkAnswer() {
+            if (selectedAnswer === null || isAnswered) return;
+
+
+
+
+            isAnswered = true;
+            const question = currentQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+
+
+
+
+            // Show correct answer
+            options[question.answer].classList.add('correct');
+
+
+
+
+            if (selectedAnswer === question.answer) {
+                score++;
+                if (!categoryScores[question.category]) {
+                    categoryScores[question.category] = { correct: 0, total: 0 };
+                }
+                categoryScores[question.category].correct++;
+            } else {
+                options[selectedAnswer].classList.add('incorrect');
+                document.getElementById('feedback').textContent =
+                    `Correct Answer: ${question.options[question.answer]}`;
+            }
+
+
+            if (!categoryScores[question.category]) {
+                categoryScores[question.category] = { correct: 0, total: 0 };
+            }
+            categoryScores[question.category].total++;
+
+
+
+
+            document.getElementById('submitBtn').textContent =
+                currentQuestionIndex === currentQuestions.length - 1 ? 'Show Results' : 'Next Question';
+            document.getElementById('submitBtn').onclick = nextQuestion;
+        }
+
+
+
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+
+
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent =
+                `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
+        }
+
+
+
+
+        function showResults() {
+            const percentage = (score / currentQuestions.length) * 100;
+            const passed = percentage >= 80;
+
+
+
+
+            document.getElementById('quiz-content').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+
+
+
+
+            document.getElementById('resultsIcon').textContent = passed ? '🏆' : '📚';
+            document.getElementById('resultsTitle').textContent =
+                passed ? 'Congratulations!' : 'Keep Practicing!';
+            document.getElementById('resultsScore').textContent =
+                `You scored ${score} out of ${currentQuestions.length} (${Math.round(percentage)}%)`;
+            document.getElementById('resultsStatus').textContent =
+                passed ? 'You passed the test!' : 'You need 80% to pass. Try again!';
+
+
+
+
+            const breakdownContainer = document.getElementById('categoryBreakdown');
+            breakdownContainer.innerHTML = '';
+
+
+
+
+            Object.entries(categoryScores).forEach(([category, scores]) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category-item';
+                const percentage = Math.round((scores.correct / scores.total) * 100);
+                categoryDiv.innerHTML = `
+                    <span>${category}</span>
+                    <span>${scores.correct}/${scores.total} (${percentage}%)</span>
+                `;
+                breakdownContainer.appendChild(categoryDiv);
+            });
+        }
+
+
+
+
+        function restartQuiz() {
+            initializeQuiz();
+        }
+
+
+
+
+        window.onload = function() {
+            initializeQuiz();
+        };
+    </script>
+</body>
+</html>
